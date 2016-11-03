@@ -12,6 +12,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -42,7 +43,14 @@ public class DBManageActivity extends AppCompatActivity {
     private final int DIALOG_UPDATE_ANIMAL_CARETAKER_STEP2 = 11414;
     private final int DIALOG_REMOVE_ANIMAL_CARETAKER = 115;
 
-    private EditText addUser_login, addUser_password, addCage_title, addType_title, addCaretaker_name, addCaretaker_surname;
+    private final int DIALOG_SHOW_ALL_ANIMALS = 116;
+    private final int DIALOG_ADD_ANIMAL = 117;
+    private final int DIALOG_UPDATE_ANIMAL_STEP1 = 118;
+    private final int DIALOG_UPDATE_ANIMAL_STEP2 = 11818;
+    private final int DIALOG_REMOVE_ANIMAL = 119;
+
+    private EditText addUser_login, addUser_password, addCage_title, addType_title, addCaretaker_name, addCaretaker_surname, addAnimal_name, addAnimal_age;
+    private Spinner addAnimal_spinType, addAnimal_spinCage, addAnimal_spinCaretaker;
     private CheckBox addUser_isAdmin;
 
     private ListView dbmanage_lView;
@@ -54,6 +62,7 @@ public class DBManageActivity extends AppCompatActivity {
     private AnimalType animalTypeForUpdate;
     private AnimalCage animalCageForUpdate;
     private AnimalCaretaker animalCaretakerForUpdate;
+    private Animal animalForUpdate;
 
     private final int ACTION_SHOW_ALL_USERS = 0;
     private final int ACTION_ADD_USER = 1;
@@ -74,6 +83,11 @@ public class DBManageActivity extends AppCompatActivity {
     private final int ACTION_ADD_ANIMAL_CARETAKER = 13;
     private final int ACTION_UPDATE_ANIMAL_CARETAKER = 14;
     private final int ACTION_REMOVE_ANIMAL_CARETAKER = 15;
+
+    private final int ACTION_SHOW_ALL_ANIMALS = 16;
+    private final int ACTION_ADD_ANIMAL = 17;
+    private final int ACTION_UPDATE_ANIMAL = 18;
+    private final int ACTION_REMOVE_ANIMAL = 19;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,6 +171,18 @@ public class DBManageActivity extends AppCompatActivity {
                     break;
                 case ACTION_REMOVE_ANIMAL_CARETAKER:
                     currentDialog = DIALOG_REMOVE_ANIMAL_CARETAKER;
+                    break;
+                case ACTION_SHOW_ALL_ANIMALS:
+                    currentDialog = DIALOG_SHOW_ALL_ANIMALS;
+                    break;
+                case ACTION_ADD_ANIMAL:
+                    currentDialog = DIALOG_ADD_ANIMAL;
+                    break;
+                case ACTION_UPDATE_ANIMAL:
+                    currentDialog = DIALOG_UPDATE_ANIMAL_STEP1;
+                    break;
+                case ACTION_REMOVE_ANIMAL:
+                    currentDialog = DIALOG_REMOVE_ANIMAL;
                     break;
             }
             showDialog(currentDialog);
@@ -294,6 +320,37 @@ public class DBManageActivity extends AppCompatActivity {
                 adb.setPositiveButton("Удалить", overallDialogsListener);
                 adb.setNegativeButton("Отмена", overallDialogsListener);
                 break;
+            case DIALOG_ADD_ANIMAL:
+                adb.setTitle("Добавление животного");
+                adb.setPositiveButton("Добавить", overallDialogsListener);
+                adb.setNegativeButton("Отмена", overallDialogsListener);
+                view = (LinearLayout) getLayoutInflater().inflate(R.layout.addanimaldialog, null);
+                adb.setView(view);
+                break;
+            case DIALOG_SHOW_ALL_ANIMALS:
+                adb.setTitle("Список животных");
+                adb.setAdapter(adapter, overallDialogsListener);
+                adb.setPositiveButton("OK", overallDialogsListener);
+                break;
+            case DIALOG_UPDATE_ANIMAL_STEP1:
+                adb.setTitle("Выберите животное для изменения");
+                adb.setSingleChoiceItems(data, -1, overallDialogsListener);
+                adb.setPositiveButton("Изменить", overallDialogsListener);
+                adb.setNegativeButton("Отмена", overallDialogsListener);
+                break;
+            case DIALOG_UPDATE_ANIMAL_STEP2:
+                adb.setTitle("Изменить животное \"" + animalForUpdate.getAnimalName() + "\"");
+                adb.setPositiveButton("Изменить", overallDialogsListener);
+                adb.setNegativeButton("Отмена", overallDialogsListener);
+                view = (LinearLayout) getLayoutInflater().inflate(R.layout.addanimaldialog, null);
+                adb.setView(view);
+                break;
+            case DIALOG_REMOVE_ANIMAL:
+                adb.setTitle("Выберите животное для удаления");
+                adb.setSingleChoiceItems(data, -1, overallDialogsListener);
+                adb.setPositiveButton("Удалить", overallDialogsListener);
+                adb.setNegativeButton("Отмена", overallDialogsListener);
+                break;
         }
         return adb.create();
     }
@@ -317,6 +374,9 @@ public class DBManageActivity extends AppCompatActivity {
             case DIALOG_SHOW_ALL_ANIMAL_CARETAKERS:
             case DIALOG_UPDATE_ANIMAL_CARETAKER_STEP1:
             case DIALOG_REMOVE_ANIMAL_CARETAKER:
+            case DIALOG_SHOW_ALL_ANIMALS:
+            case DIALOG_UPDATE_ANIMAL_STEP1:
+            case DIALOG_REMOVE_ANIMAL:
                 aDialog.getListView().setAdapter(adapter);
                 break;
             case DIALOG_ADD_USER:
@@ -347,6 +407,17 @@ public class DBManageActivity extends AppCompatActivity {
                 addCaretaker_name.setText(EMPTY);
                 addCaretaker_surname.setText(EMPTY);
                 break;
+            case DIALOG_ADD_ANIMAL:
+            case DIALOG_UPDATE_ANIMAL_STEP2:
+                addAnimal_name = (EditText) dialog.getWindow().findViewById(R.id.addAnimal_name);
+                addAnimal_age = (EditText) dialog.getWindow().findViewById(R.id.addAnimal_age);
+                addAnimal_spinType = (Spinner) dialog.getWindow().findViewById(R.id.addAnimal_spinType);
+                addAnimal_spinCage = (Spinner) dialog.getWindow().findViewById(R.id.addAnimal_spinCage);
+                addAnimal_spinCaretaker = (Spinner) dialog.getWindow().findViewById(R.id.addAnimal_spinCaretaker);
+                configureSpinners();
+                addAnimal_name.setText(EMPTY);
+                addAnimal_age.setText(EMPTY);
+                break;
         }
         dialog.setCanceledOnTouchOutside(false);
     }
@@ -361,20 +432,8 @@ public class DBManageActivity extends AppCompatActivity {
             result = getAllCages(innerDataBase.getAllAnimalCages());
         } else if (dialogId == DIALOG_SHOW_ALL_ANIMAL_CARETAKERS || dialogId == DIALOG_UPDATE_ANIMAL_CARETAKER_STEP1 || dialogId == DIALOG_REMOVE_ANIMAL_CARETAKER) {
             result = getAllCaretakers(innerDataBase.getAllAnimalCaretakers());
-        }
-        return result;
-    }
-
-    private ArrayAdapter<CharSequence> getAdapterByDialogId(int dialogId, String[] data) throws NullPointerException {
-        ArrayAdapter<CharSequence> result = null;
-        if (dialogId == DIALOG_SHOW_ALL_USERS || dialogId == DIALOG_SHOW_ALL_ANIMAL_TYPES ||
-                dialogId == DIALOG_SHOW_ALL_ANIMAL_CAGES || dialogId == DIALOG_SHOW_ALL_ANIMAL_CARETAKERS) {
-            result = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_list_item_1, data);
-        } else if (dialogId == DIALOG_UPDATE_USER_STEP1 || dialogId == DIALOG_REMOVE_USER ||
-                dialogId == DIALOG_UPDATE_ANIMAL_TYPE_STEP1 || dialogId == DIALOG_REMOVE_ANIMAL_TYPE ||
-                dialogId == DIALOG_UPDATE_ANIMAL_CAGE_STEP1 || dialogId == DIALOG_REMOVE_ANIMAL_CAGE ||
-                dialogId == DIALOG_UPDATE_ANIMAL_CARETAKER_STEP1 || dialogId == DIALOG_REMOVE_ANIMAL_CARETAKER) {
-            result = new ArrayAdapter<CharSequence>(this, android.R.layout.select_dialog_singlechoice, android.R.id.text1, data);
+        } else if (dialogId == DIALOG_SHOW_ALL_ANIMALS || dialogId == DIALOG_UPDATE_ANIMAL_STEP1 || dialogId == DIALOG_REMOVE_ANIMAL) {
+            result = getAllAnimals(innerDataBase.getAllAnimals());
         }
         return result;
     }
@@ -414,6 +473,48 @@ public class DBManageActivity extends AppCompatActivity {
         }
         return result;
     }
+
+    private String[] getAllAnimals(ArrayList<Animal> animalList) {
+        String[] result = new String[animalList.size()];
+        int counter = 0;
+        for (Animal animal : animalList) {
+            result[counter++] = animal.getAnimalName();
+        }
+        return result;
+    }
+
+    private ArrayAdapter<CharSequence> getAdapterByDialogId(int dialogId, String[] data) throws NullPointerException {
+        ArrayAdapter<CharSequence> result = null;
+        if (dialogId == DIALOG_SHOW_ALL_USERS || dialogId == DIALOG_SHOW_ALL_ANIMAL_TYPES ||
+                dialogId == DIALOG_SHOW_ALL_ANIMAL_CAGES || dialogId == DIALOG_SHOW_ALL_ANIMAL_CARETAKERS || dialogId == DIALOG_SHOW_ALL_ANIMALS) {
+            result = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_list_item_1, data);
+        } else if (dialogId == DIALOG_UPDATE_USER_STEP1 || dialogId == DIALOG_REMOVE_USER ||
+                dialogId == DIALOG_UPDATE_ANIMAL_TYPE_STEP1 || dialogId == DIALOG_REMOVE_ANIMAL_TYPE ||
+                dialogId == DIALOG_UPDATE_ANIMAL_CAGE_STEP1 || dialogId == DIALOG_REMOVE_ANIMAL_CAGE ||
+                dialogId == DIALOG_UPDATE_ANIMAL_CARETAKER_STEP1 || dialogId == DIALOG_REMOVE_ANIMAL_CARETAKER ||
+                dialogId == DIALOG_UPDATE_ANIMAL_STEP1 || dialogId == DIALOG_REMOVE_ANIMAL) {
+            result = new ArrayAdapter<CharSequence>(this, android.R.layout.select_dialog_singlechoice, android.R.id.text1, data);
+        }
+        return result;
+    }
+
+    private void configureSpinners() {
+        String[] data = getDataByDialogId(DIALOG_REMOVE_ANIMAL_TYPE);
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item, data);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        addAnimal_spinType.setAdapter(adapter);
+
+        data = getDataByDialogId(DIALOG_REMOVE_ANIMAL_CAGE);
+        adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item, data);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        addAnimal_spinCage.setAdapter(adapter);
+
+        data = getDataByDialogId(DIALOG_REMOVE_ANIMAL_CARETAKER);
+        adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item, data);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        addAnimal_spinCaretaker.setAdapter(adapter);
+    }
+
 
     DialogInterface.OnClickListener overallDialogsListener = new DialogInterface.OnClickListener() {
         ListView listView;
@@ -571,23 +672,59 @@ public class DBManageActivity extends AppCompatActivity {
                     case DIALOG_REMOVE_ANIMAL_CARETAKER:
                         listView = ((AlertDialog) dialogInterface).getListView();
                         position = listView.getCheckedItemPosition();
-                        
                         userName = (String) listView.getItemAtPosition(position);
                         innerDataBase.removeAnimalCaretaker(new AnimalCaretaker(userName));
                         showToast("Смотритель \"" + userName + "\" удален");
+                        break;
+                    case DIALOG_SHOW_ALL_ANIMALS:
+                        break;
+                    case DIALOG_ADD_ANIMAL:
+                        userName = addAnimal_name.getText().toString();
+                        int age = Integer.parseInt(addAnimal_age.getText().toString());
+                        int animalType = addAnimal_spinType.getSelectedItemPosition();
+                        int animalCage = addAnimal_spinCage.getSelectedItemPosition();
+                        int animalCaretaker = addAnimal_spinCaretaker.getSelectedItemPosition();
+                        Animal animal = new Animal(userName, animalType, age, animalCage, animalCaretaker);
+                        if (innerDataBase.animalIsExist(animal)) {
+                            showToast("Такое животное уже существует");
+                        } else {
+                            innerDataBase.addAnimal(animal);
+                            showToast("Животное \"" + animal.getAnimalName() + "\" добавлено");
+                        }
+                        break;
+                    case DIALOG_UPDATE_ANIMAL_STEP1:
+                        listView = ((AlertDialog) dialogInterface).getListView();
+                        position = listView.getCheckedItemPosition();
+                        userName = (String) listView.getItemAtPosition(position);
+                        animalForUpdate = innerDataBase.getAnimalByName(userName);
+                        currentDialog = DIALOG_UPDATE_ANIMAL_STEP2;
+                        showDialog(currentDialog);
+                        break;
+                    case DIALOG_UPDATE_ANIMAL_STEP2:
+                        userName = addAnimal_name.getText().toString();
+                        age = Integer.parseInt(addAnimal_age.getText().toString());
+                        animalType = addAnimal_spinType.getSelectedItemPosition();
+                        animalCage = addAnimal_spinCage.getSelectedItemPosition();
+                        animalCaretaker = addAnimal_spinCaretaker.getSelectedItemPosition();
+                        animalForUpdate.setAnimalName(userName);
+                        animalForUpdate.setAnimalAge(age);
+                        animalForUpdate.setAnimalTypeId(animalType);
+                        animalForUpdate.setAnimalCageId(animalCage);
+                        animalForUpdate.setAnimalCaretakerId(animalCaretaker);
+                        innerDataBase.updateAnimal(animalForUpdate);
+                        showToast("Животное обновлено");
+                        break;
+                    case DIALOG_REMOVE_ANIMAL:
+                        listView = ((AlertDialog) dialogInterface).getListView();
+                        position = listView.getCheckedItemPosition();
+                        userName = (String) listView.getItemAtPosition(position);
+                        innerDataBase.removeAnimal(new Animal(userName));
+                        showToast("Животное \"" + userName + "\" удалено");
                         break;
                 }
             }
         }
     };
-
-    private void removeAllAnimalCaretakerDialogs() {
-        removeDialog(DIALOG_SHOW_ALL_ANIMAL_CARETAKERS);
-        removeDialog(DIALOG_ADD_ANIMAL_CARETAKER);
-        removeDialog(DIALOG_UPDATE_ANIMAL_CARETAKER_STEP1);
-        removeDialog(DIALOG_UPDATE_ANIMAL_CARETAKER_STEP2);
-        removeDialog(DIALOG_REMOVE_ANIMAL_CARETAKER);
-    }
 
     private void showToast(String message) {
         Toast toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);

@@ -35,6 +35,14 @@ public class InnerDataBase {
     private String ANIMAL_CARETAKERS_COLUMN_NAME = "name";
     private String ANIMAL_CARETAKERS_COLUMN_SURNAME = "surname";
 
+    private String ANIMALS_TABLE_NAME = "Animals";
+    private String ANIMALS_COLUMN_ID = "_id";
+    private String ANIMALS_COLUMN_NAME = "name";
+    private String ANIMALS_COLUMN_TYPEID = "typeId";
+    private String ANIMALS_COLUMN_AGE = "age";
+    private String ANIMALS_COLUMN_CAGEID = "cageId";
+    private String ANIMALS_COLUMN_CARETAKERID = "caretakerId";
+
     private Context context;
     private InnerSQLDB innerSQLDB;
 
@@ -44,8 +52,6 @@ public class InnerDataBase {
 
     public void open() {
         innerSQLDB = new InnerSQLDB(context);
-        /*SQLiteDatabase sqLiteDatabase = innerSQLDB.getWritableDatabase();
-        sqLiteDatabase.*/
     }
 
     public void close() {
@@ -436,6 +442,115 @@ public class InnerDataBase {
         return false;
     }
 
+    public Cursor getCursorAnimals() {
+        SQLiteDatabase sqLiteDatabase = innerSQLDB.getReadableDatabase();
+        Cursor result;
+        sqLiteDatabase.beginTransaction();
+        try {
+            result = sqLiteDatabase.query(ANIMALS_TABLE_NAME, null, null, null, null, null, null);
+            sqLiteDatabase.setTransactionSuccessful();
+        } finally {
+            sqLiteDatabase.endTransaction();
+        }
+        return result;
+    }
+
+    public ArrayList<Animal> getAllAnimals() {
+        ArrayList<Animal> result = new ArrayList<>();
+        Cursor cursor = getCursorAnimals();
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(ANIMALS_COLUMN_ID);
+            int nameIndex = cursor.getColumnIndex(ANIMALS_COLUMN_NAME);
+            int typeIdIndex = cursor.getColumnIndex(ANIMALS_COLUMN_TYPEID);
+            int ageIndex = cursor.getColumnIndex(ANIMALS_COLUMN_AGE);
+            int cageIdIndex = cursor.getColumnIndex(ANIMALS_COLUMN_CAGEID);
+            int caretakerIdIndex = cursor.getColumnIndex(ANIMALS_COLUMN_CARETAKERID);
+            do {
+                int animalId = cursor.getInt(idIndex);
+                String animalName = cursor.getString(nameIndex);
+                int animalTypeId = cursor.getInt(typeIdIndex);
+                int animalAge = cursor.getInt(ageIndex);
+                int animalCageId = cursor.getInt(cageIdIndex);
+                int animalCaretakerId = cursor.getInt(caretakerIdIndex);
+                result.add(new Animal(animalId, animalName, animalTypeId, animalAge, animalCageId, animalCaretakerId));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return result;
+    }
+
+    public Animal getAnimalByName(String animalName) {
+        Animal result = null;
+        ArrayList<Animal> animalList = getAllAnimals();
+        for (Animal animal : animalList) {
+            if (animalName.equals(animal.getAnimalName())) {
+                result = animal;
+            }
+        }
+        return result;
+    }
+
+    public void addAnimal(Animal animal) {
+        SQLiteDatabase sqLiteDatabase = innerSQLDB.getWritableDatabase();
+        ContentValues cValues = new ContentValues();
+        sqLiteDatabase.beginTransaction();
+        try {
+            cValues.put(ANIMALS_COLUMN_NAME, animal.getAnimalName());
+            cValues.put(ANIMALS_COLUMN_TYPEID, animal.getAnimalTypeId());
+            cValues.put(ANIMALS_COLUMN_AGE, animal.getAnimalAge());
+            cValues.put(ANIMALS_COLUMN_CAGEID, animal.getAnimalCageId());
+            cValues.put(ANIMALS_COLUMN_CARETAKERID, animal.getAnimalCaretakerId());
+            sqLiteDatabase.insert(ANIMALS_TABLE_NAME, null, cValues);
+            sqLiteDatabase.setTransactionSuccessful();
+        } finally {
+            sqLiteDatabase.endTransaction();
+        }
+    }
+
+    public void updateAnimal(Animal animal) {
+        SQLiteDatabase sqLiteDatabase = innerSQLDB.getWritableDatabase();
+        ContentValues cValues = new ContentValues();
+        sqLiteDatabase.beginTransaction();
+        try {
+            cValues.put(ANIMALS_COLUMN_NAME, animal.getAnimalName());
+            cValues.put(ANIMALS_COLUMN_TYPEID, animal.getAnimalTypeId());
+            cValues.put(ANIMALS_COLUMN_AGE, animal.getAnimalAge());
+            cValues.put(ANIMALS_COLUMN_CAGEID, animal.getAnimalCageId());
+            cValues.put(ANIMALS_COLUMN_CARETAKERID, animal.getAnimalCaretakerId());
+            sqLiteDatabase.update(ANIMALS_TABLE_NAME, cValues, ANIMALS_COLUMN_ID + " = " + animal.getAnimalId(), null);
+            sqLiteDatabase.setTransactionSuccessful();
+        } finally {
+            sqLiteDatabase.endTransaction();
+        }
+    }
+
+    public void removeAnimal(Animal animal) {
+        SQLiteDatabase sqLiteDatabase = innerSQLDB.getWritableDatabase();
+        sqLiteDatabase.beginTransaction();
+        try {
+            sqLiteDatabase.delete(ANIMALS_TABLE_NAME, ANIMALS_COLUMN_NAME + " = \"" + animal.getAnimalName() + "\"", null);
+            sqLiteDatabase.setTransactionSuccessful();
+        } finally {
+            sqLiteDatabase.endTransaction();
+        }
+    }
+
+    public boolean animalIsExist(Animal animal) {
+        Cursor cursor = getCursorAnimals();
+
+        if (cursor.moveToFirst()) {
+            int nameIndex = cursor.getColumnIndex(ANIMALS_COLUMN_NAME);
+            do {
+                if (animal.getAnimalName().equals(cursor.getString(nameIndex))) {
+                    cursor.close();
+                    return true;
+                }
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return false;
+    }
+
     class InnerSQLDB extends SQLiteOpenHelper {
         public InnerSQLDB(Context context) {
             super(context, DB_NAME, null, DB_VERSION);
@@ -461,6 +576,14 @@ public class InnerDataBase {
                     + ANIMAL_CARETAKERS_COLUMN_ID + " integer primary key,"
                     + ANIMAL_CARETAKERS_COLUMN_NAME + " text,"
                     + ANIMAL_CARETAKERS_COLUMN_SURNAME + " text)");
+
+            sqLiteDatabase.execSQL("create table " + ANIMALS_TABLE_NAME + " ("
+                    + ANIMALS_COLUMN_ID + " integer primary key,"
+                    + ANIMALS_COLUMN_NAME + " text,"
+                    + ANIMALS_COLUMN_TYPEID + " integer,"
+                    + ANIMALS_COLUMN_AGE + " integer,"
+                    + ANIMALS_COLUMN_CAGEID + " integer,"
+                    + ANIMALS_COLUMN_CARETAKERID + " integer)");
         }
 
         @Override
