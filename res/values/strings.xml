@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Zoo2</string>
+    <string-array name="sArrayActions">
+        <item>Просмотр БД пользователей</item>
+        <item>Добавить пользователя</item>
+        <item>Редактировать пользователя</item>
+        <item>Удалить пользователя</item>
+        <item>Просмотр БД типов животных</item>
+        <item>Добавить тип животных</item>
+        <item>Редактировать типы животных</item>
+        <item>Удалить тип животных</item>
+        <item>Просмотр БД клеток</item>
+        <item>Добавить клетку</item>
+        <item>Редактировать клетку</item>
+        <item>Удалить клетку</item>
+        <item>Просмотр БД смотрителей</item>
+        <item>Добавить смотрителя</item>
+        <item>Редактировать смотрителя</item>
+        <item>Удалить смотрителя</item>
+        <item>Просмотр БД животных</item>
+        <item>Добавить животное</item>
+        <item>Редактировать животное</item>
+        <item>Удалить животное</item>
+    </string-array>
+</resources>
