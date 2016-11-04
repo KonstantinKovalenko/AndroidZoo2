@@ -92,7 +92,7 @@ public class InnerDataBase {
     }
 
     public User getUserByName(String userName) {
-        User result = null;
+        User result = new User("");
         ArrayList<User> userList = getAllUsers();
         for (User user : userList) {
             if (userName.equals(user.getUserName())) {
@@ -188,8 +188,18 @@ public class InnerDataBase {
         return result;
     }
 
+    public String getAnimalTypeTitleById(int id) {
+        ArrayList<AnimalType> typeList = getAllAnimalTypes();
+        for (AnimalType type : typeList) {
+            if (type.getTypeId() == id) {
+                return type.getTypeTitle();
+            }
+        }
+        return "Данного типа нет в базе данных";
+    }
+
     public AnimalType getAnimalTypeByTitle(String typeTitle) {
-        AnimalType result = null;
+        AnimalType result = new AnimalType("");
         ArrayList<AnimalType> typeList = getAllAnimalTypes();
         for (AnimalType type : typeList) {
             if (typeTitle.equals(type.getTypeTitle())) {
@@ -281,8 +291,18 @@ public class InnerDataBase {
         return result;
     }
 
+    private String getAnimalCageTitleById(int id) {
+        ArrayList<AnimalCage> cageList = getAllAnimalCages();
+        for (AnimalCage cage : cageList) {
+            if (cage.getCageId() == id) {
+                return cage.getCageTitle();
+            }
+        }
+        return "Клетка не найдена в базе данных";
+    }
+
     public AnimalCage getAnimalCageByTitle(String cageTitle) {
-        AnimalCage result = null;
+        AnimalCage result = new AnimalCage("");
         ArrayList<AnimalCage> cageList = getAllAnimalCages();
         for (AnimalCage cage : cageList) {
             if (cageTitle.equals(cage.getCageTitle())) {
@@ -376,8 +396,21 @@ public class InnerDataBase {
         return result;
     }
 
+    private AnimalCaretaker getAnimalCaretakerById(int id) {
+        ArrayList<AnimalCaretaker> ctakerList = getAllAnimalCaretakers();
+        String caretakerName = "Не найдено в базе данных";
+        String caretakerSurname = "";
+        for (AnimalCaretaker ctaker : ctakerList) {
+            if (ctaker.getCaretakerId() == id) {
+                caretakerName = ctaker.getCaretakerName();
+                caretakerSurname = ctaker.getCaretakerSurname();
+            }
+        }
+        return new AnimalCaretaker(caretakerName, caretakerSurname);
+    }
+
     public AnimalCaretaker getAnimalCaretakerByName(String ctakerName) {
-        AnimalCaretaker result = null;
+        AnimalCaretaker result = new AnimalCaretaker("");
         ArrayList<AnimalCaretaker> ctakerList = getAllAnimalCaretakers();
         for (AnimalCaretaker ctaker : ctakerList) {
             if (ctakerName.equals(ctaker.getCaretakerName())) {
@@ -480,13 +513,32 @@ public class InnerDataBase {
     }
 
     public Animal getAnimalByName(String animalName) {
-        Animal result = null;
+        Animal result = new Animal("");
         ArrayList<Animal> animalList = getAllAnimals();
         for (Animal animal : animalList) {
             if (animalName.equals(animal.getAnimalName())) {
                 result = animal;
             }
         }
+        return result;
+    }
+
+    public String[] getAnimalById(int id) throws NullPointerException {
+        Animal animal = new Animal("");
+        ArrayList<Animal> animalList = getAllAnimals();
+        for (Animal an : animalList) {
+            if (an.getAnimalId() == id) {
+                animal = an;
+            }
+        }
+        AnimalCaretaker caretaker = getAnimalCaretakerById(animal.getAnimalCaretakerId());
+        String[] result = new String[6];
+        result[0] = animal.getAnimalName();
+        result[1] = getAnimalTypeTitleById(animal.getAnimalTypeId());
+        result[2] = String.valueOf(animal.getAnimalAge());
+        result[3] = getAnimalCageTitleById(animal.getAnimalCageId());
+        result[4] = caretaker.getCaretakerName();
+        result[5] = caretaker.getCaretakerSurname();
         return result;
     }
 

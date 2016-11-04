@@ -681,9 +681,9 @@ public class DBManageActivity extends AppCompatActivity {
                     case DIALOG_ADD_ANIMAL:
                         userName = addAnimal_name.getText().toString();
                         int age = Integer.parseInt(addAnimal_age.getText().toString());
-                        int animalType = addAnimal_spinType.getSelectedItemPosition();
-                        int animalCage = addAnimal_spinCage.getSelectedItemPosition();
-                        int animalCaretaker = addAnimal_spinCaretaker.getSelectedItemPosition();
+                        int animalType = addAnimal_spinType.getSelectedItemPosition() + 1;
+                        int animalCage = addAnimal_spinCage.getSelectedItemPosition() + 1;
+                        int animalCaretaker = addAnimal_spinCaretaker.getSelectedItemPosition() + 1;
                         Animal animal = new Animal(userName, animalType, age, animalCage, animalCaretaker);
                         if (innerDataBase.animalIsExist(animal)) {
                             showToast("Такое животное уже существует");
@@ -703,9 +703,9 @@ public class DBManageActivity extends AppCompatActivity {
                     case DIALOG_UPDATE_ANIMAL_STEP2:
                         userName = addAnimal_name.getText().toString();
                         age = Integer.parseInt(addAnimal_age.getText().toString());
-                        animalType = addAnimal_spinType.getSelectedItemPosition();
-                        animalCage = addAnimal_spinCage.getSelectedItemPosition();
-                        animalCaretaker = addAnimal_spinCaretaker.getSelectedItemPosition();
+                        animalType = addAnimal_spinType.getSelectedItemPosition() + 1;
+                        animalCage = addAnimal_spinCage.getSelectedItemPosition() + 1;
+                        animalCaretaker = addAnimal_spinCaretaker.getSelectedItemPosition() + 1;
                         animalForUpdate.setAnimalName(userName);
                         animalForUpdate.setAnimalAge(age);
                         animalForUpdate.setAnimalTypeId(animalType);
