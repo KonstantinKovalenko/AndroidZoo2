@@ -1,11 +1,10 @@
-package com.example.admin.zoo2;
+package com.example.admin.zoo2.database;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.view.View;
 
 import java.util.ArrayList;
 
@@ -46,7 +45,7 @@ public class InnerDataBase {
     private Context context;
     private InnerSQLDB innerSQLDB;
 
-    InnerDataBase(Context context) {
+    public InnerDataBase(Context context) {
         this.context = context;
     }
 
@@ -56,50 +55,6 @@ public class InnerDataBase {
 
     public void close() {
         innerSQLDB.close();
-    }
-
-    public Cursor getCursorUsers() {
-        SQLiteDatabase sqLiteDatabase = innerSQLDB.getReadableDatabase();
-        Cursor result;
-        sqLiteDatabase.beginTransaction();
-        try {
-            result = sqLiteDatabase.query(USERS_TABLE_NAME, null, null, null, null, null, null);
-            sqLiteDatabase.setTransactionSuccessful();
-        } finally {
-            sqLiteDatabase.endTransaction();
-        }
-        return result;
-    }
-
-    public ArrayList<User> getAllUsers() {
-        ArrayList<User> result = new ArrayList<>();
-        Cursor cursor = getCursorUsers();
-        if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(USERS_COLUMN_ID);
-            int nameIndex = cursor.getColumnIndex(USERS_COLUMN_LOGIN);
-            int passwordIndex = cursor.getColumnIndex(USERS_COLUMN_PASSWORD);
-            int adminIndex = cursor.getColumnIndex(USERS_COLUMN_ADMINISTRATOR);
-            do {
-                int userId = cursor.getInt(idIndex);
-                String userName = cursor.getString(nameIndex);
-                String userPassword = cursor.getString(passwordIndex);
-                boolean isAdmin = (cursor.getInt(adminIndex) == 0 ? true : false);
-                result.add(new User(userId, userName, userPassword, isAdmin));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return result;
-    }
-
-    public User getUserByName(String userName) {
-        User result = new User("");
-        ArrayList<User> userList = getAllUsers();
-        for (User user : userList) {
-            if (userName.equals(user.getUserName())) {
-                result = user;
-            }
-        }
-        return result;
     }
 
     public void addUser(User user) {
@@ -143,9 +98,52 @@ public class InnerDataBase {
         }
     }
 
+    public User getUserByName(String userName) {
+        User result = new User("");
+        ArrayList<User> userList = getAllUsers();
+        for (User user : userList) {
+            if (userName.equals(user.getUserName())) {
+                result = user;
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<User> getAllUsers() {
+        ArrayList<User> result = new ArrayList<>();
+        Cursor cursor = getCursorUsers();
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(USERS_COLUMN_ID);
+            int nameIndex = cursor.getColumnIndex(USERS_COLUMN_LOGIN);
+            int passwordIndex = cursor.getColumnIndex(USERS_COLUMN_PASSWORD);
+            int adminIndex = cursor.getColumnIndex(USERS_COLUMN_ADMINISTRATOR);
+            do {
+                int userId = cursor.getInt(idIndex);
+                String userName = cursor.getString(nameIndex);
+                String userPassword = cursor.getString(passwordIndex);
+                boolean isAdmin = (cursor.getInt(adminIndex) == 0 ? true : false);
+                result.add(new User(userId, userName, userPassword, isAdmin));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return result;
+    }
+
+    private Cursor getCursorUsers() {
+        SQLiteDatabase sqLiteDatabase = innerSQLDB.getReadableDatabase();
+        Cursor result;
+        sqLiteDatabase.beginTransaction();
+        try {
+            result = sqLiteDatabase.query(USERS_TABLE_NAME, null, null, null, null, null, null);
+            sqLiteDatabase.setTransactionSuccessful();
+        } finally {
+            sqLiteDatabase.endTransaction();
+        }
+        return result;
+    }
+
     public boolean userIsExist(User user) {
         Cursor cursor = getCursorUsers();
-
         if (cursor.moveToFirst()) {
             int nameIndex = cursor.getColumnIndex(USERS_COLUMN_LOGIN);
             do {
@@ -157,56 +155,6 @@ public class InnerDataBase {
         }
         cursor.close();
         return false;
-    }
-
-    public Cursor getCursorAnimalTypes() {
-        SQLiteDatabase sqLiteDatabase = innerSQLDB.getReadableDatabase();
-        Cursor result;
-        sqLiteDatabase.beginTransaction();
-        try {
-            result = sqLiteDatabase.query(ANIMAL_TYPES_TABLE_NAME, null, null, null, null, null, null);
-            sqLiteDatabase.setTransactionSuccessful();
-        } finally {
-            sqLiteDatabase.endTransaction();
-        }
-        return result;
-    }
-
-    public ArrayList<AnimalType> getAllAnimalTypes() {
-        ArrayList<AnimalType> result = new ArrayList<>();
-        Cursor cursor = getCursorAnimalTypes();
-        if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(ANIMAL_TYPES_COLUMN_ID);
-            int typeIndex = cursor.getColumnIndex(ANIMAL_TYPES_COLUMN_TYPE);
-            do {
-                int typeId = cursor.getInt(idIndex);
-                String typeTitle = cursor.getString(typeIndex);
-                result.add(new AnimalType(typeId, typeTitle));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return result;
-    }
-
-    public String getAnimalTypeTitleById(int id) {
-        ArrayList<AnimalType> typeList = getAllAnimalTypes();
-        for (AnimalType type : typeList) {
-            if (type.getTypeId() == id) {
-                return type.getTypeTitle();
-            }
-        }
-        return "Данного типа нет в базе данных";
-    }
-
-    public AnimalType getAnimalTypeByTitle(String typeTitle) {
-        AnimalType result = new AnimalType("");
-        ArrayList<AnimalType> typeList = getAllAnimalTypes();
-        for (AnimalType type : typeList) {
-            if (typeTitle.equals(type.getTypeTitle())) {
-                result = type;
-            }
-        }
-        return result;
     }
 
     public void addAnimalType(AnimalType type) {
@@ -246,9 +194,58 @@ public class InnerDataBase {
         }
     }
 
+    public AnimalType getAnimalTypeByTitle(String typeTitle) {
+        AnimalType result = new AnimalType("");
+        ArrayList<AnimalType> typeList = getAllAnimalTypes();
+        for (AnimalType type : typeList) {
+            if (typeTitle.equals(type.getTypeTitle())) {
+                result = type;
+            }
+        }
+        return result;
+    }
+
+    public String getAnimalTypeTitleById(int id) {
+        ArrayList<AnimalType> typeList = getAllAnimalTypes();
+        for (AnimalType type : typeList) {
+            if (type.getTypeId() == id) {
+                return type.getTypeTitle();
+            }
+        }
+        return "Данного типа нет в базе данных";
+    }
+
+    public ArrayList<AnimalType> getAllAnimalTypes() {
+        ArrayList<AnimalType> result = new ArrayList<>();
+        Cursor cursor = getCursorAnimalTypes();
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(ANIMAL_TYPES_COLUMN_ID);
+            int typeIndex = cursor.getColumnIndex(ANIMAL_TYPES_COLUMN_TYPE);
+            do {
+                int typeId = cursor.getInt(idIndex);
+                String typeTitle = cursor.getString(typeIndex);
+                result.add(new AnimalType(typeId, typeTitle));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return result;
+    }
+
+    private Cursor getCursorAnimalTypes() {
+        SQLiteDatabase sqLiteDatabase = innerSQLDB.getReadableDatabase();
+        Cursor result;
+        sqLiteDatabase.beginTransaction();
+        try {
+            result = sqLiteDatabase.query(ANIMAL_TYPES_TABLE_NAME, null, null, null, null, null, null);
+            sqLiteDatabase.setTransactionSuccessful();
+        } finally {
+            sqLiteDatabase.endTransaction();
+        }
+        return result;
+    }
+
     public boolean animalTypeIsExist(AnimalType type) {
         Cursor cursor = getCursorAnimalTypes();
-
         if (cursor.moveToFirst()) {
             int typeIndex = cursor.getColumnIndex(ANIMAL_TYPES_COLUMN_TYPE);
             do {
@@ -260,56 +257,6 @@ public class InnerDataBase {
         }
         cursor.close();
         return false;
-    }
-
-    public Cursor getCursorAnimalCages() {
-        SQLiteDatabase sqLiteDatabase = innerSQLDB.getReadableDatabase();
-        Cursor result;
-        sqLiteDatabase.beginTransaction();
-        try {
-            result = sqLiteDatabase.query(ANIMAL_CAGES_TABLE_NAME, null, null, null, null, null, null);
-            sqLiteDatabase.setTransactionSuccessful();
-        } finally {
-            sqLiteDatabase.endTransaction();
-        }
-        return result;
-    }
-
-    public ArrayList<AnimalCage> getAllAnimalCages() {
-        ArrayList<AnimalCage> result = new ArrayList<>();
-        Cursor cursor = getCursorAnimalCages();
-        if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(ANIMAL_CAGES_COLUMN_ID);
-            int cageIndex = cursor.getColumnIndex(ANIMAL_CAGES_COLUMN_CAGE);
-            do {
-                int cageId = cursor.getInt(idIndex);
-                String cageTitle = cursor.getString(cageIndex);
-                result.add(new AnimalCage(cageId, cageTitle));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return result;
-    }
-
-    private String getAnimalCageTitleById(int id) {
-        ArrayList<AnimalCage> cageList = getAllAnimalCages();
-        for (AnimalCage cage : cageList) {
-            if (cage.getCageId() == id) {
-                return cage.getCageTitle();
-            }
-        }
-        return "Клетка не найдена в базе данных";
-    }
-
-    public AnimalCage getAnimalCageByTitle(String cageTitle) {
-        AnimalCage result = new AnimalCage("");
-        ArrayList<AnimalCage> cageList = getAllAnimalCages();
-        for (AnimalCage cage : cageList) {
-            if (cageTitle.equals(cage.getCageTitle())) {
-                result = cage;
-            }
-        }
-        return result;
     }
 
     public void addAnimalCage(AnimalCage cage) {
@@ -349,9 +296,58 @@ public class InnerDataBase {
         }
     }
 
+    private String getAnimalCageTitleById(int id) {
+        ArrayList<AnimalCage> cageList = getAllAnimalCages();
+        for (AnimalCage cage : cageList) {
+            if (cage.getCageId() == id) {
+                return cage.getCageTitle();
+            }
+        }
+        return "Клетка не найдена в базе данных";
+    }
+
+    public AnimalCage getAnimalCageByTitle(String cageTitle) {
+        AnimalCage result = new AnimalCage("");
+        ArrayList<AnimalCage> cageList = getAllAnimalCages();
+        for (AnimalCage cage : cageList) {
+            if (cageTitle.equals(cage.getCageTitle())) {
+                result = cage;
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<AnimalCage> getAllAnimalCages() {
+        ArrayList<AnimalCage> result = new ArrayList<>();
+        Cursor cursor = getCursorAnimalCages();
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(ANIMAL_CAGES_COLUMN_ID);
+            int cageIndex = cursor.getColumnIndex(ANIMAL_CAGES_COLUMN_CAGE);
+            do {
+                int cageId = cursor.getInt(idIndex);
+                String cageTitle = cursor.getString(cageIndex);
+                result.add(new AnimalCage(cageId, cageTitle));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return result;
+    }
+
+    private Cursor getCursorAnimalCages() {
+        SQLiteDatabase sqLiteDatabase = innerSQLDB.getReadableDatabase();
+        Cursor result;
+        sqLiteDatabase.beginTransaction();
+        try {
+            result = sqLiteDatabase.query(ANIMAL_CAGES_TABLE_NAME, null, null, null, null, null, null);
+            sqLiteDatabase.setTransactionSuccessful();
+        } finally {
+            sqLiteDatabase.endTransaction();
+        }
+        return result;
+    }
+
     public boolean animalCageIsExist(AnimalCage cage) {
         Cursor cursor = getCursorAnimalCages();
-
         if (cursor.moveToFirst()) {
             int cageIndex = cursor.getColumnIndex(ANIMAL_CAGES_COLUMN_CAGE);
             do {
@@ -363,61 +359,6 @@ public class InnerDataBase {
         }
         cursor.close();
         return false;
-    }
-
-    public Cursor getCursorAnimalCaretakers() {
-        SQLiteDatabase sqLiteDatabase = innerSQLDB.getReadableDatabase();
-        Cursor result;
-        sqLiteDatabase.beginTransaction();
-        try {
-            result = sqLiteDatabase.query(ANIMAL_CARETAKERS_TABLE_NAME, null, null, null, null, null, null);
-            sqLiteDatabase.setTransactionSuccessful();
-        } finally {
-            sqLiteDatabase.endTransaction();
-        }
-        return result;
-    }
-
-    public ArrayList<AnimalCaretaker> getAllAnimalCaretakers() {
-        ArrayList<AnimalCaretaker> result = new ArrayList<>();
-        Cursor cursor = getCursorAnimalCaretakers();
-        if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(ANIMAL_CARETAKERS_COLUMN_ID);
-            int nameIndex = cursor.getColumnIndex(ANIMAL_CARETAKERS_COLUMN_NAME);
-            int surnameIndex = cursor.getColumnIndex(ANIMAL_CARETAKERS_COLUMN_SURNAME);
-            do {
-                int ctakerId = cursor.getInt(idIndex);
-                String ctakerName = cursor.getString(nameIndex);
-                String ctakerSurname = cursor.getString(surnameIndex);
-                result.add(new AnimalCaretaker(ctakerId, ctakerName, ctakerSurname));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return result;
-    }
-
-    private AnimalCaretaker getAnimalCaretakerById(int id) {
-        ArrayList<AnimalCaretaker> ctakerList = getAllAnimalCaretakers();
-        String caretakerName = "Не найдено в базе данных";
-        String caretakerSurname = "";
-        for (AnimalCaretaker ctaker : ctakerList) {
-            if (ctaker.getCaretakerId() == id) {
-                caretakerName = ctaker.getCaretakerName();
-                caretakerSurname = ctaker.getCaretakerSurname();
-            }
-        }
-        return new AnimalCaretaker(caretakerName, caretakerSurname);
-    }
-
-    public AnimalCaretaker getAnimalCaretakerByName(String ctakerName) {
-        AnimalCaretaker result = new AnimalCaretaker("");
-        ArrayList<AnimalCaretaker> ctakerList = getAllAnimalCaretakers();
-        for (AnimalCaretaker ctaker : ctakerList) {
-            if (ctakerName.equals(ctaker.getCaretakerName())) {
-                result = ctaker;
-            }
-        }
-        return result;
     }
 
     public void addAnimalCaretaker(AnimalCaretaker ctaker) {
@@ -459,9 +400,63 @@ public class InnerDataBase {
         }
     }
 
+    private AnimalCaretaker getAnimalCaretakerById(int id) {
+        ArrayList<AnimalCaretaker> ctakerList = getAllAnimalCaretakers();
+        String caretakerName = "Не найдено в базе данных";
+        String caretakerSurname = "";
+        for (AnimalCaretaker ctaker : ctakerList) {
+            if (ctaker.getCaretakerId() == id) {
+                caretakerName = ctaker.getCaretakerName();
+                caretakerSurname = ctaker.getCaretakerSurname();
+            }
+        }
+        return new AnimalCaretaker(caretakerName, caretakerSurname);
+    }
+
+    public AnimalCaretaker getAnimalCaretakerByName(String ctakerName) {
+        AnimalCaretaker result = new AnimalCaretaker("");
+        ArrayList<AnimalCaretaker> ctakerList = getAllAnimalCaretakers();
+        for (AnimalCaretaker ctaker : ctakerList) {
+            if (ctakerName.equals(ctaker.getCaretakerName())) {
+                result = ctaker;
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<AnimalCaretaker> getAllAnimalCaretakers() {
+        ArrayList<AnimalCaretaker> result = new ArrayList<>();
+        Cursor cursor = getCursorAnimalCaretakers();
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(ANIMAL_CARETAKERS_COLUMN_ID);
+            int nameIndex = cursor.getColumnIndex(ANIMAL_CARETAKERS_COLUMN_NAME);
+            int surnameIndex = cursor.getColumnIndex(ANIMAL_CARETAKERS_COLUMN_SURNAME);
+            do {
+                int ctakerId = cursor.getInt(idIndex);
+                String ctakerName = cursor.getString(nameIndex);
+                String ctakerSurname = cursor.getString(surnameIndex);
+                result.add(new AnimalCaretaker(ctakerId, ctakerName, ctakerSurname));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return result;
+    }
+
+    private Cursor getCursorAnimalCaretakers() {
+        SQLiteDatabase sqLiteDatabase = innerSQLDB.getReadableDatabase();
+        Cursor result;
+        sqLiteDatabase.beginTransaction();
+        try {
+            result = sqLiteDatabase.query(ANIMAL_CARETAKERS_TABLE_NAME, null, null, null, null, null, null);
+            sqLiteDatabase.setTransactionSuccessful();
+        } finally {
+            sqLiteDatabase.endTransaction();
+        }
+        return result;
+    }
+
     public boolean animalCaretakerIsExist(AnimalCaretaker ctaker) {
         Cursor cursor = getCursorAnimalCaretakers();
-
         if (cursor.moveToFirst()) {
             int nameIndex = cursor.getColumnIndex(ANIMAL_CARETAKERS_COLUMN_NAME);
             do {
@@ -473,73 +468,6 @@ public class InnerDataBase {
         }
         cursor.close();
         return false;
-    }
-
-    public Cursor getCursorAnimals() {
-        SQLiteDatabase sqLiteDatabase = innerSQLDB.getReadableDatabase();
-        Cursor result;
-        sqLiteDatabase.beginTransaction();
-        try {
-            result = sqLiteDatabase.query(ANIMALS_TABLE_NAME, null, null, null, null, null, null);
-            sqLiteDatabase.setTransactionSuccessful();
-        } finally {
-            sqLiteDatabase.endTransaction();
-        }
-        return result;
-    }
-
-    public ArrayList<Animal> getAllAnimals() {
-        ArrayList<Animal> result = new ArrayList<>();
-        Cursor cursor = getCursorAnimals();
-        if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(ANIMALS_COLUMN_ID);
-            int nameIndex = cursor.getColumnIndex(ANIMALS_COLUMN_NAME);
-            int typeIdIndex = cursor.getColumnIndex(ANIMALS_COLUMN_TYPEID);
-            int ageIndex = cursor.getColumnIndex(ANIMALS_COLUMN_AGE);
-            int cageIdIndex = cursor.getColumnIndex(ANIMALS_COLUMN_CAGEID);
-            int caretakerIdIndex = cursor.getColumnIndex(ANIMALS_COLUMN_CARETAKERID);
-            do {
-                int animalId = cursor.getInt(idIndex);
-                String animalName = cursor.getString(nameIndex);
-                int animalTypeId = cursor.getInt(typeIdIndex);
-                int animalAge = cursor.getInt(ageIndex);
-                int animalCageId = cursor.getInt(cageIdIndex);
-                int animalCaretakerId = cursor.getInt(caretakerIdIndex);
-                result.add(new Animal(animalId, animalName, animalTypeId, animalAge, animalCageId, animalCaretakerId));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return result;
-    }
-
-    public Animal getAnimalByName(String animalName) {
-        Animal result = new Animal("");
-        ArrayList<Animal> animalList = getAllAnimals();
-        for (Animal animal : animalList) {
-            if (animalName.equals(animal.getAnimalName())) {
-                result = animal;
-            }
-        }
-        return result;
-    }
-
-    public String[] getAnimalById(int id) throws NullPointerException {
-        Animal animal = new Animal("");
-        ArrayList<Animal> animalList = getAllAnimals();
-        for (Animal an : animalList) {
-            if (an.getAnimalId() == id) {
-                animal = an;
-            }
-        }
-        AnimalCaretaker caretaker = getAnimalCaretakerById(animal.getAnimalCaretakerId());
-        String[] result = new String[6];
-        result[0] = animal.getAnimalName();
-        result[1] = getAnimalTypeTitleById(animal.getAnimalTypeId());
-        result[2] = String.valueOf(animal.getAnimalAge());
-        result[3] = getAnimalCageTitleById(animal.getAnimalCageId());
-        result[4] = caretaker.getCaretakerName();
-        result[5] = caretaker.getCaretakerSurname();
-        return result;
     }
 
     public void addAnimal(Animal animal) {
@@ -587,9 +515,75 @@ public class InnerDataBase {
         }
     }
 
+    public Animal getAnimalByName(String animalName) {
+        Animal result = new Animal("");
+        ArrayList<Animal> animalList = getAllAnimals();
+        for (Animal animal : animalList) {
+            if (animalName.equals(animal.getAnimalName())) {
+                result = animal;
+            }
+        }
+        return result;
+    }
+
+    public String[] getAnimalById(int id) {
+        Animal animal = new Animal("");
+        ArrayList<Animal> animalList = getAllAnimals();
+        for (Animal an : animalList) {
+            if (an.getAnimalId() == id) {
+                animal = an;
+            }
+        }
+        AnimalCaretaker caretaker = getAnimalCaretakerById(animal.getAnimalCaretakerId());
+        String[] result = new String[6];
+        result[0] = animal.getAnimalName();
+        result[1] = getAnimalTypeTitleById(animal.getAnimalTypeId());
+        result[2] = String.valueOf(animal.getAnimalAge());
+        result[3] = getAnimalCageTitleById(animal.getAnimalCageId());
+        result[4] = caretaker.getCaretakerName();
+        result[5] = caretaker.getCaretakerSurname();
+        return result;
+    }
+
+    public ArrayList<Animal> getAllAnimals() {
+        ArrayList<Animal> result = new ArrayList<>();
+        Cursor cursor = getCursorAnimals();
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(ANIMALS_COLUMN_ID);
+            int nameIndex = cursor.getColumnIndex(ANIMALS_COLUMN_NAME);
+            int typeIdIndex = cursor.getColumnIndex(ANIMALS_COLUMN_TYPEID);
+            int ageIndex = cursor.getColumnIndex(ANIMALS_COLUMN_AGE);
+            int cageIdIndex = cursor.getColumnIndex(ANIMALS_COLUMN_CAGEID);
+            int caretakerIdIndex = cursor.getColumnIndex(ANIMALS_COLUMN_CARETAKERID);
+            do {
+                int animalId = cursor.getInt(idIndex);
+                String animalName = cursor.getString(nameIndex);
+                int animalTypeId = cursor.getInt(typeIdIndex);
+                int animalAge = cursor.getInt(ageIndex);
+                int animalCageId = cursor.getInt(cageIdIndex);
+                int animalCaretakerId = cursor.getInt(caretakerIdIndex);
+                result.add(new Animal(animalId, animalName, animalTypeId, animalAge, animalCageId, animalCaretakerId));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return result;
+    }
+
+    private Cursor getCursorAnimals() {
+        SQLiteDatabase sqLiteDatabase = innerSQLDB.getReadableDatabase();
+        Cursor result;
+        sqLiteDatabase.beginTransaction();
+        try {
+            result = sqLiteDatabase.query(ANIMALS_TABLE_NAME, null, null, null, null, null, null);
+            sqLiteDatabase.setTransactionSuccessful();
+        } finally {
+            sqLiteDatabase.endTransaction();
+        }
+        return result;
+    }
+
     public boolean animalIsExist(Animal animal) {
         Cursor cursor = getCursorAnimals();
-
         if (cursor.moveToFirst()) {
             int nameIndex = cursor.getColumnIndex(ANIMALS_COLUMN_NAME);
             do {
@@ -603,32 +597,57 @@ public class InnerDataBase {
         return false;
     }
 
-    class InnerSQLDB extends SQLiteOpenHelper {
-        public InnerSQLDB(Context context) {
+    private class InnerSQLDB extends SQLiteOpenHelper {
+        private InnerSQLDB(Context context) {
             super(context, DB_NAME, null, DB_VERSION);
         }
 
         @Override
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
+            createAndFillUsersTable(sqLiteDatabase);
+            createAndFillAnimalTypesTable(sqLiteDatabase);
+            createAndFillAnimalCagesTable(sqLiteDatabase);
+            createAndFillAnimalCaretakersTable(sqLiteDatabase);
+            createAndFillAnimalsTable(sqLiteDatabase);
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+
+        }
+
+        private void createAndFillUsersTable(SQLiteDatabase sqLiteDatabase) {
             sqLiteDatabase.execSQL("create table " + USERS_TABLE_NAME + " ("
                     + USERS_COLUMN_ID + " integer primary key,"
                     + USERS_COLUMN_LOGIN + " text,"
                     + USERS_COLUMN_PASSWORD + " text,"
                     + USERS_COLUMN_ADMINISTRATOR + " integer)");
+            fillTable();
+        }
 
+        private void createAndFillAnimalTypesTable(SQLiteDatabase sqLiteDatabase) {
             sqLiteDatabase.execSQL("create table " + ANIMAL_TYPES_TABLE_NAME + " ("
                     + ANIMAL_TYPES_COLUMN_ID + " integer primary key,"
                     + ANIMAL_TYPES_COLUMN_TYPE + " text)");
+            fillTable();
+        }
 
+        private void createAndFillAnimalCagesTable(SQLiteDatabase sqLiteDatabase) {
             sqLiteDatabase.execSQL("create table " + ANIMAL_CAGES_TABLE_NAME + " ("
                     + ANIMAL_CAGES_COLUMN_ID + " integer primary key,"
                     + ANIMAL_CAGES_COLUMN_CAGE + " text)");
+            fillTable();
+        }
 
+        private void createAndFillAnimalCaretakersTable(SQLiteDatabase sqLiteDatabase) {
             sqLiteDatabase.execSQL("create table " + ANIMAL_CARETAKERS_TABLE_NAME + " ("
                     + ANIMAL_CARETAKERS_COLUMN_ID + " integer primary key,"
                     + ANIMAL_CARETAKERS_COLUMN_NAME + " text,"
                     + ANIMAL_CARETAKERS_COLUMN_SURNAME + " text)");
+            fillTable();
+        }
 
+        private void createAndFillAnimalsTable(SQLiteDatabase sqLiteDatabase) {
             sqLiteDatabase.execSQL("create table " + ANIMALS_TABLE_NAME + " ("
                     + ANIMALS_COLUMN_ID + " integer primary key,"
                     + ANIMALS_COLUMN_NAME + " text,"
@@ -636,11 +655,11 @@ public class InnerDataBase {
                     + ANIMALS_COLUMN_AGE + " integer,"
                     + ANIMALS_COLUMN_CAGEID + " integer,"
                     + ANIMALS_COLUMN_CARETAKERID + " integer)");
+            fillTable();
         }
 
-        @Override
-        public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
+        private void fillTable() {
+            //fill table from outer database or xml file, or else outer source
         }
     }
 }

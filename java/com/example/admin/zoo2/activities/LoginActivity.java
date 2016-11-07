@@ -1,22 +1,18 @@
-package com.example.admin.zoo2;
+package com.example.admin.zoo2.activities;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.util.ArrayList;
+import com.example.admin.zoo2.R;
+import com.example.admin.zoo2.database.InnerDataBase;
+import com.example.admin.zoo2.database.User;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
-
-
-    private final String LOG_TAG = "myTag";
 
     private Button login_btnEnter, login_btnRegister;
     private EditText login_eTextLogin, login_eTextPassword;
@@ -32,7 +28,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         initializeViews();
         setOnClickListeners();
-
         innerDataBase = new InnerDataBase(this);
     }
 
@@ -87,7 +82,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             toast.show();
             return true;
         }
-
         if (viewId == R.id.login_btnEnter) {
             User user = innerDataBase.getUserByName(login);
             if (user == null) {

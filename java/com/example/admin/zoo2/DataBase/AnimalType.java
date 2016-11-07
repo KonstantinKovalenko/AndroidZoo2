@@ -1,6 +1,6 @@
-package com.example.admin.zoo2;
+package com.example.admin.zoo2.database;
 
-public class AnimalType implements DBClasses {
+public class AnimalType {
 
     private int typeId;
     private String typeTitle;
@@ -28,10 +28,5 @@ public class AnimalType implements DBClasses {
 
     public void setTypeTitle(String typeTitle) {
         this.typeTitle = typeTitle;
-    }
-
-    @Override
-    public String getIdentyString() {
-        return typeTitle;
     }
 }

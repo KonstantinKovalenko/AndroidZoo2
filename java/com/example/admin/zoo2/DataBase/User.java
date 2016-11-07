@@ -1,9 +1,9 @@
-package com.example.admin.zoo2;
+package com.example.admin.zoo2.database;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class User implements Parcelable, DBClasses {
+public class User implements Parcelable {
 
     private int userId = -1;
 
@@ -98,10 +98,5 @@ public class User implements Parcelable, DBClasses {
         parcel.writeString(getUserName());
         parcel.writeString(getUserPassword());
         parcel.writeByte((byte) (isAdmin() ? 1 : 0));
-    }
-
-    @Override
-    public String getIdentyString() {
-        return userName;
     }
 }

@@ -1,11 +1,11 @@
-package com.example.admin.zoo2;
+package com.example.admin.zoo2.activities;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,14 +15,17 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import com.example.admin.zoo2.R;
+import com.example.admin.zoo2.database.InnerDataBase;
+import com.example.admin.zoo2.database.Animal;
+import com.example.admin.zoo2.database.User;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final String LOG_TAG = "myTag";
     private final int MENU_ITEM_DBMANAGE = 111;
     private final int MENU_ITEM_LOGOUT = 222;
     private final int DIALOG_SHOW_ANIMAL = 1;
@@ -43,9 +46,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        initializeViews();
+        initializeAndOpenInnerDataBase();
+        setCurrentUser();
+    }
+
+    private void initializeViews() {
         main_listAnimals = (ListView) findViewById(R.id.main_lvAnimals);
+    }
+
+    private void initializeAndOpenInnerDataBase() {
         innerDataBase = new InnerDataBase(this);
         innerDataBase.open();
+    }
+
+    private void setCurrentUser() {
         currentUser = getIntent().getParcelableExtra("currentUser");
     }
 
@@ -79,10 +94,14 @@ public class MainActivity extends AppCompatActivity {
     AdapterView.OnItemClickListener onAnimalListClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            animalForObserve = innerDataBase.getAnimalById(i + 1);
+            buildAnimalForObserve(i);
             showDialog(DIALOG_SHOW_ANIMAL);
         }
     };
+
+    private void buildAnimalForObserve(int animalListId) {
+        animalForObserve = innerDataBase.getAnimalById(animalListId + 1);
+    }
 
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -90,11 +109,18 @@ public class MainActivity extends AppCompatActivity {
         adb.setTitle("Полный обзор животного");
         LinearLayout view = (LinearLayout) getLayoutInflater().inflate(R.layout.animalobservedialog, null);
         adb.setView(view);
+        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
         return adb.create();
     }
 
     @Override
     protected void onPrepareDialog(int id, Dialog dialog) {
+        String space = " ";
         animalobserve_animalName = (TextView) dialog.getWindow().findViewById(R.id.animalobserve_animalName);
         animalobserve_animalType = (TextView) dialog.getWindow().findViewById(R.id.animalobserve_animalType);
         animalobserve_animalAge = (TextView) dialog.getWindow().findViewById(R.id.animalobserve_animalAge);
@@ -104,7 +130,8 @@ public class MainActivity extends AppCompatActivity {
         animalobserve_animalType.setText(animalForObserve[1]);
         animalobserve_animalAge.setText(animalForObserve[2]);
         animalobserve_animalCage.setText(animalForObserve[3]);
-        animalobserve_animalCaretaker.setText(animalForObserve[4] + " " + animalForObserve[5]);
+        animalobserve_animalCaretaker.setText(animalForObserve[4] + space + animalForObserve[5]);
+        dialog.setCanceledOnTouchOutside(false);
     }
 
     @Override
@@ -136,17 +163,5 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         innerDataBase.close();
-    }
-
-    private void showAllAnimals() {
-        ArrayList<Animal> animalList = innerDataBase.getAllAnimals();
-        for (Animal animal : animalList) {
-            Log.d(LOG_TAG, "ID = " + animal.getAnimalId()
-                    + ", Name = " + animal.getAnimalName()
-                    + ", type = " + animal.getAnimalTypeId()
-                    + ", age = " + animal.getAnimalAge()
-                    + ", cage = " + animal.getAnimalCageId()
-                    + ", caretaker = " + animal.getAnimalCaretakerId());
-        }
     }
 }

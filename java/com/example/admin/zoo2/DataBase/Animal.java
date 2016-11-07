@@ -1,6 +1,6 @@
-package com.example.admin.zoo2;
+package com.example.admin.zoo2.database;
 
-public class Animal implements DBClasses {
+public class Animal {
 
     private String animalName;
     private int animalId;
@@ -76,10 +76,5 @@ public class Animal implements DBClasses {
 
     public void setAnimalCaretakerId(int animalCaretakerId) {
         this.animalCaretakerId = animalCaretakerId;
-    }
-
-    @Override
-    public String getIdentyString() {
-        return animalName;
     }
 }
