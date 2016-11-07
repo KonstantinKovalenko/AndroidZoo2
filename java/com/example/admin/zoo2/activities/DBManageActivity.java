@@ -546,7 +546,7 @@ public class DBManageActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onPause();
+        super.onDestroy();
         innerDataBase.close();
     }
 }

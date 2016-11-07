@@ -73,10 +73,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private boolean accessDenied(int viewId) {
         Toast toast = Toast.makeText(this, "", Toast.LENGTH_LONG);
-
         login = login_eTextLogin.getText().toString();
         password = login_eTextPassword.getText().toString();
-
         if (login.length() == 0 || password.length() == 0) {
             toast.setText("Введите логин и пароль");
             toast.show();

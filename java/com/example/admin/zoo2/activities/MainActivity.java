@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
         initializeViews();
         initializeAndOpenInnerDataBase();
         setCurrentUser();
@@ -82,11 +81,9 @@ public class MainActivity extends AppCompatActivity {
             map.put(LISTITEM_ANIMAL_NAME, "Имя: " + animalName);
             data.add(map);
         }
-
         String[] from = {LISTITEM_ANIMAL_TYPE, LISTITEM_ANIMAL_NAME};
         int[] to = {R.id.item_tvAnimalType, R.id.item_tvAnimalName};
         SimpleAdapter simpleAdapter = new SimpleAdapter(this, data, R.layout.adapteritems, from, to);
-
         main_listAnimals.setAdapter(simpleAdapter);
         main_listAnimals.setOnItemClickListener(onAnimalListClickListener);
     }
@@ -138,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem item = menu.add(0, MENU_ITEM_LOGOUT, 0, currentUser.getUserName());
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-
         item = menu.add(0, MENU_ITEM_DBMANAGE, 0, "Работа с базами данных");
         if (!currentUser.isAdmin()) {
             item.setVisible(false);
